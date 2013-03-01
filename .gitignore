@@ -11,3 +11,10 @@
 *.lai
 *.la
 *.a
+
+# Temporary files
+a.out
+*.swp
+
+# Tag files 
+tags

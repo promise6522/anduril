@@ -1,7 +1,8 @@
 #ifndef __ANDURIL_FIBER_H_
 
-#include <list>
+#include <ucontext.h>
 
+#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 
 namespace anduril{
@@ -10,50 +11,29 @@ class Scheduler;
 
 class Fiber {
 
-    friend class Scheduler;
 public:
     typedef boost::shared_ptr<Fiber> ptr;
 
-    Fiber(boost::function<void()> cb) : cb_(cb) {
+    Fiber(boost::function<void()> cb);
 
-    }
-
-    //schedule(const boost::shared_ptr<Scheduler>& scheduler);
-private:
-
-    //invoke by the scheduler only
-    void schedule_() {
-        cb_();
-    }
+    ~Fiber();
 
 private:
-    boost::function<void()> cb_;
-
-};
-
-class Scheduler {
-public:
-    Scheduler() {};
-
-    void run() {
-        while (!run_queue_.empty()) {
-            //TODO sync
-            Fiber::ptr pfb = run_queue_.front();
-            run_queue_.pop_front();
-
-            pfb->schedule_();
-        }
-    }
-
-    void schedule(const boost::shared_ptr<Fiber>& pfb) {
-        //TODO sync
-        run_queue_.push_back(pfb);
-    }
-
-    void yield();
+    // entry point for scheduling
+    void start();
 
 private:
-    std::list<Fiber::ptr> run_queue_;
+    friend class Scheduler;
+
+    bool                        exit_;
+    boost::function<void()>     cb_;
+
+    // current scheduled on
+    Scheduler*                  sched_;
+
+    // context and stack pointer
+    ucontext_t                  ctx_;
+    void*                       ctx_sp_;
 
 };
 

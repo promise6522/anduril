@@ -4,15 +4,16 @@
 
 #include <list>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace anduril{
 
 class Fiber;
 typedef boost::shared_ptr<Fiber> FiberPtr;
 
-class Scheduler {
+class Scheduler : private boost::noncopyable {
 public:
     Scheduler();
 
